@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title">Account Details</h3>
+                <p><strong>Username:</strong> {{ current_user.username }}</p>
+                
+                <hr class="my-4">
+
+                <h5 class="text-danger">Delete Account</h5>
+                <p class="text-muted">
+                    Warning: This action is irreversible. Deleting your account will permanently remove all your portfolio data.
+                </p>
+                <form action="/delete_account" method="POST" 
+                      onsubmit="return confirm('Are you absolutely sure you want to delete your account? This cannot be undone.');">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Delete My Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

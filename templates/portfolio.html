@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mb-3" style="color: white;">Welcome back, {{ current_user.username }}!</h3>
+
+{% if portfolio %}
+    <div class="row mb-4">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Portfolio Allocation</h5>
+                    <canvas id="myPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Portfolio Summary</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Investment
+                            <span class="badge bg-secondary rounded-pill fs-6">₹{{ summary.total_investment }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Current Value
+                            <span class="badge bg-primary rounded-pill fs-6">₹{{ summary.total_current_value }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total P/L
+                            {% if summary.total_profit_loss >= 0 %}
+                                <span class="badge bg-success rounded-pill fs-6">₹{{ summary.total_profit_loss }}</span>
+                            {% else %}
+                                <span class="badge bg-danger rounded-pill fs-6">₹{{ summary.total_profit_loss }}</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">My Holdings</h5>
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Stock</th>
+                        <th>Quantity</th>
+                        <th>Buy Price (Avg)</th>
+                        <th>Current Price</th>
+                        <th>Profit/Loss</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in portfolio %}
+                    <tr>
+                        <td>{{ stock.stock_name }}</td>
+                        <td>{{ stock.quantity }}</td>
+                        <td>₹{{ stock.buy_price }}</td>
+                        <td>₹{{ stock.current_price }}</td>
+                        {% if stock.profit_loss >= 0 %}
+                            <td class="text-success">₹{{ stock.profit_loss }}</td>
+                        {% else %}
+                            <td class="text-danger">₹{{ stock.profit_loss }}</td>
+                        {% endif %}
+                        <td>
+                            <a href="/delete/{{ stock.id }}" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash3-fill"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% else %}
+    <div class="card shadow-sm text-center">
+        <div class="card-body p-5">
+            <i class="bi bi-graph-up-arrow" style="font-size: 3rem; color: var(--fin-primary);"></i>
+            <h5 class="card-title mt-3">Welcome to Your Portfolio!</h5>
+            <p class="text-muted">
+                It looks like you haven't added any stocks yet.
+                <br>
+                Use the form below to get started.
+            </p>
+        </div>
+    </div>
+{% endif %}
+<div class="card shadow-sm mb-4 mt-4"> <div class="card-body">
+        <h5 class="card-title">Add / Update Stock</h5>
+        <form action="/portfolio" method="POST">
+            <div class="row g-3">
+                <div class="col-md">
+                    <input type="text" class="form-control" name="stock_name" placeholder="Stock Name (e.g., TCS)" required>
+                </div>
+                <div class="col-md">
+                    <input type="number" class="form-control" name="quantity" placeholder="Quantity" required>
+                </div>
+                <div class="col-md">
+                    <input type="number" step="0.01" class="form-control" name="buy_price" placeholder="Buy Price (₹)" required>
+                </div>
+                <div class="col-md">
+                    <input type="number" step="0.01" class="form-control" name="current_price" placeholder="Current Price (₹)" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle-fill"></i> Add/Update
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Only run this script if the chart element exists
+        if (document.getElementById('myPieChart')) {
+            const portfolioData = {{ portfolio | tojson }};
+
+            // Extract data for the chart (Stock Names and Total Investment per stock)
+            const labels = portfolioData.map(stock => stock.stock_name);
+            const data = portfolioData.map(stock => (stock.quantity * stock.buy_price).toFixed(2)); // Use investment value
+
+            const ctx = document.getElementById('myPieChart').getContext('2d');
+            const myPieChart = new Chart(ctx, {
+                type: 'pie', // 'pie' or 'doughnut'
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Investment (₹)',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(0, 82, 204, 0.8)',  // Our --fin-primary
+                            'rgba(25, 135, 84, 0.8)',  // Our --fin-green
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)',  // Our --fin-red
+                            'rgba(108, 117, 125, 0.8)',
+                            'rgba(25, 192, 192, 0.8)'
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}

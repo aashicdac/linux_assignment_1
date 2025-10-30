@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>{% block title %}FinTrackr{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        /* 1. Set the default background for all pages */
+        body {
+            font-family: 'Inter', sans-serif; /* Step 1 Font */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                              url('https://plus.unsplash.com/premium_photo-1661443781814-333019eaad2d?ixlib-rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1251');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* 1.a Apply Poppins to headings */
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* 2. Page load "fade-in" animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card, .jumbotron, .container > .row {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* 3. "Lively" hover transitions */
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #ffffff !important;
+            transform: scale(1.1);
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* 4. Custom Color Theme (Step 3) */
+        :root {
+            --fin-primary: #0052cc;
+            --fin-green: #198754;
+            --fin-red: #dc3545;
+        }
+        .btn-primary {
+            background-color: var(--fin-primary);
+            border-color: var(--fin-primary);
+        }
+        .btn-primary:hover {
+            background-color: #0041a3;
+            border-color: #0041a3;
+        }
+        .navbar-dark {
+            background-color: #222 !important;
+        }
+        .text-success {
+            color: var(--fin-green) !important;
+        }
+        .text-danger {
+            color: var(--fin-red) !important;
+        }
+        .badge.bg-success {
+            background-color: var(--fin-green) !important;
+        }
+        .badge.bg-danger {
+            background-color: var(--fin-red) !important;
+        }
+        .badge.bg-primary {
+            background-color: var(--fin-primary) !important;
+        }
+    </style>
+    {% block styles %}{% endblock %}
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-graph-up"></i> FinTrackr</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/portfolio"><i class="bi bi-grid-fill"></i> My Portfolio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manage_loss"><i class="bi bi-calculator-fill"></i> Manage Loss</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/account"><i class="bi bi-person-circle"></i> Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register"><i class="bi bi-person-plus-fill"></i> Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

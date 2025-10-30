@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3 class="card-title">Manage Your Loss</h3>
+        <p class="card-subtitle mb-2 text-muted">Calculate how many shares to buy to average down.</p>
+        
+        {% for stock in losing_stocks %}
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">{{ stock.stock_name }}</h5>
+                    <p>
+                        You own <strong>{{ stock.quantity }}</strong> shares at an average of <strong>${{ stock.buy_price }}</strong>.
+                        The current price is <strong>${{ stock.current_price }}</strong>.
+                    </p>
+                    
+                    <form method="POST" action="/calculate_break_even" class="row g-3 align-items-end">
+                        <input type="hidden" name="stock_id" value="{{ stock.id }}">
+                        <div class="col-md-6">
+                            <label for="p_target" class="form-label">Enter new target average price:</label>
+                            <input type="number" step="0.01" class="form-control" name="p_target" 
+                                   placeholder="e.g., {{ (stock.buy_price + stock.current_price) / 2 }}">
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100">Calculate</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-success">
+                Congratulations! You have no stocks at a loss.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
